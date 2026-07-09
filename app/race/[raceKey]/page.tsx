@@ -40,14 +40,21 @@ export default async function RacePage({
   }
   const r = race as Race;
 
-  const [{ data: horsesData }, { data: snapsData }] = await Promise.all([
-    supabase.from("horses").select("id,race_id,umaban,name").eq("race_id", r.id),
-    supabase
-      .from("snapshots")
-      .select("*")
-      .eq("race_id", r.id)
-      .order("as_of", { ascending: true }),
-  ]);
+  const [{ data: horsesData }, { data: snapsData }, { data: videoData }] =
+    await Promise.all([
+      supabase.from("horses").select("id,race_id,umaban,name").eq("race_id", r.id),
+      supabase
+        .from("snapshots")
+        .select("*")
+        .eq("race_id", r.id)
+        .order("as_of", { ascending: true }),
+      supabase
+        .from("race_videos")
+        .select("race_key,url,title,kind")
+        .eq("race_key", raceKey)
+        .maybeSingle(),
+    ]);
+  const video = videoData as { url: string; title: string | null; kind: string | null } | null;
 
   const horses = (horsesData ?? []) as Horse[];
   const snaps = (snapsData ?? []) as Snapshot[];
@@ -126,6 +133,21 @@ export default async function RacePage({
         {r.race_no ? ` ${r.race_no}R` : ""}
         {latest ? ` ・ 集計日 ${latest} ・ 対象投稿 ${totalPosts}件` : ""}
       </p>
+
+      {video ? (
+        <div className="videowrap">
+          {video.kind === "youtube" ? (
+            <iframe
+              src={video.url}
+              title={video.title ?? `${r.name} SNS集合知`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video src={video.url} controls playsInline preload="metadata" />
+          )}
+        </div>
+      ) : null}
 
       {!hasData ? (
         <p className="empty">

@@ -24,6 +24,13 @@ export type Horse = {
   name: string;
 };
 
+export type RaceVideo = {
+  race_key: string;
+  url: string;
+  title: string | null;
+  kind: string | null;
+};
+
 export type Snapshot = {
   race_id: number;
   horse_id: number;

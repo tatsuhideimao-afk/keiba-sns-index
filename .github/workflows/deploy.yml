@@ -1,7 +1,7 @@
 name: build-and-deploy
 on:
   schedule:
-    - cron: '0 23 * * *'   # 23:00 UTC = 08:00 JST（本体collect.ymlの1時間後に最新データで再ビルド）
+    - cron: '15 11 * * 6'  # 土 11:15 UTC = 土 20:15 JST（集計・動画の後にサイト再ビルド）
   workflow_dispatch: {}
   push:
     branches: [main]
